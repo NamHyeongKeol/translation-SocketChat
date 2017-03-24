@@ -5,11 +5,11 @@ Generator: Cocoa HTML Writer
 
 170323
 
-
+\
 
 1. socket.IO 번역
 
-
+\
 
 iOS앱은 이미 수백만 개가 존재하며 댑분 서버와 통신하여 데이터를
 교환한다. 대다수의 경우, 서버는 앱이 통신에 사용할 수있는 RESTful API를
