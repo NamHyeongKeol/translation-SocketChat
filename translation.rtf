@@ -5,7 +5,7 @@
 {\colortbl;\red255\green255\blue255;\red154\green154\blue154;\red234\green234\blue234;\red246\green246\blue246;
 \red52\green52\blue52;\red10\green86\blue216;\red17\green137\blue135;\red38\green38\blue38;\red14\green114\blue164;
 \red107\green0\blue109;\red210\green0\blue53;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww19980\viewh19720\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww19980\viewh19620\viewkind0
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 
 \f0\fs26 \cf0 170323\
@@ -42,6 +42,7 @@ iOS \'bf\'eb Socket.IO \'b6\'f3\'c0\'cc\'ba\'ea\'b7\'af\'b8\'ae (\'c5\'ac\'b6\'f
 \f1\fs24 \cf0 \
 
 \f2 Connecting a user to the chat room\
+\
 \'b3\'bb\'b0\'a1 \'b5\'a5\'b8\'f0 \'be\'db\'c0\'c7 \'bf\'c0\'b9\'f6\'ba\'e4\'bf\'a1\'bc\'ad \'c0\'cc\'b9\'cc \'be\'f0\'b1\'de\'c7\'d1 \'b9\'d9\'bf\'a1 \'b5\'fb\'b8\'a3\'b8\'e9, \'bf\'ec\'b8\'ae\'b4\'c2 \'c7\'cf\'b3\'aa\'c0\'c7 \'c3\'a4\'c6\'c3\'b9\'e6\'b8\'b8\'c0\'bb \'b8\'b8\'b5\'e9 \'b0\'cd\'c0\'cc\'b4\'d9. \'c0\'cc\'b4\'c2 \'b0\'a2\'b0\'a2\'c0\'c7 \'bb\'f5\'b7\'ce \'b5\'e9\'be\'ee\'bf\'c0\'b4\'c2 \'c0\'af\'c0\'fa\'b5\'e9\'c0\'cc \'b1\'d7 \'b0\'f7\'bf\'a1 \'b5\'e9\'be\'ee\'b0\'a5 \'b0\'cd\'c0\'cc\'b6\'f3\'b4\'c2 \'b0\'cd\'c0\'bb \'c0\'c7\'b9\'cc\'c7\'cf\'b0\'ed, \'bf\'ec\'b8\'ae\'b0\'a1 \'c0\'db\'bc\'ba\'c7\'cf\'b4\'c2 \'b4\'eb\'c8\'ad\'b0\'a1 \'c0\'fc\'ba\'ce \'b8\'f0\'b5\'ce\'bf\'a1\'b0\'d4 \'ba\'b8\'bf\'a9\'c1\'fc\'c0\'bb \'c0\'c7\'b9\'cc\'c7\'d1\'b4\'d9.\'c0\'cc\'b8\'a6 \'c0\'a7\'c7\'d8\'bc\'ad, \'bf\'ec\'b8\'ae\'b4\'c2 \'be\'db\'b0\'fa \'bb\'f3\'c8\'a3\'c0\'db\'bf\'eb \'c7\'cf\'b1\'e2 \'c0\'fc\'bf\'a1 \'b0\'a2\'b0\'a2\'c0\'c7 \'bb\'f5\'b7\'ce\'bf\'ee \'c0\'af\'c0\'fa\'b8\'a6 \'c3\'a4\'c6\'c3\'b9\'e6\'bf\'a1 \'bf\'ac\'b0\'e1\'ba\'ce\'c5\'cd \'c7\'d8\'be\'df\'c7\'d1\'b4\'d9. (\'c0\'cf\'b7\'c3\'c0\'c7 \'b7\'ce\'b1\'d7\'c0\'ce \'b0\'fa\'c1\'a4)\
 \'c0\'cc\'b8\'a6 \'bd\'b1\'b0\'d4 \'b8\'b8\'b5\'e9\'b1\'e2 \'c0\'a7\'c7\'d8, \'bf\'ec\'b8\'ae\'b4\'c2 \'ba\'b9\'c0\'e2\'c7\'d1 \'b7\'ce\'b1\'d7\'c0\'ce \'bd\'c3\'bd\'ba\'c5\'db\'c0\'bb \'b8\'b8\'b5\'e9\'c1\'f6 \'be\'ca\'c0\'bb \'b0\'cd\'c0\'cc\'b0\'ed, \'b4\'eb\'bd\'c5 \'b4\'d9\'c0\'bd\'c3\'b3\'b7\'b3 \'c7\'d2 \'b0\'cd\'c0\'cc\'b4\'d9. \'bf\'ec\'b8\'ae\'b4\'c2 \'b4\'dc\'c1\'f6 \'b0\'a2 \'c0\'af\'c0\'fa\'bf\'a1\'b0\'d4 \'b4\'d0\'b3\'d7\'c0\'d3\'c0\'bb \'b9\'b0\'be\'ee\'ba\'bc \'b0\'cd\'c0\'cc\'b0\'ed \'b5\'ce \'b0\'a1\'c1\'f6 \'c1\'df\'bf\'e4\'c7\'d1 \'b0\'a1\'c1\'a4\'c0\'bb \'c7\'d2 \'b0\'cd\'c0\'cc\'b4\'d9.\
 1. \'b0\'a2 \'c0\'af\'c0\'fa\'b5\'e9\'c0\'ba unique\'c7\'d1 \'b4\'d0\'b3\'d7\'c0\'d3\'c0\'b8\'b7\'ce \'b7\'ce\'b1\'d7\'c0\'ce\'c7\'d1\'b4\'d9. \'bf\'ec\'b8\'ae\'b0\'a1 \'c6\'af\'ba\'b0\'c8\'f7 \'c0\'db\'be\'f7\'c7\'cf\'c1\'f6 \'be\'ca\'be\'c6\'b5\'b5 \'b5\'a5\'b8\'f0\'b8\'a6 \'c0\'a7\'c7\'d8 \'b5\'bf\'c0\'cf \'b4\'d0\'b3\'d7\'c0\'d3\'c0\'bb \'bb\'e7\'bf\'eb\'c7\'cf\'b4\'c2 \'b5\'ce \'b8\'ed\'c0\'cc\'bb\'f3\'c0\'c7 \'c0\'af\'c0\'fa\'b0\'a1 \'be\'f8\'c0\'bb \'b0\'cd\'c0\'cc\'b6\'f3\'b0\'ed \'b0\'a1\'c1\'a4\'c7\'d2 \'b0\'cd\'c0\'cc\'b4\'d9.\
@@ -459,7 +460,10 @@ OKAction body
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 
-\f2 \cf0 \
+\f2 \cf0 \'b0\'a2 \'bc\'d3\'bc\'ba\'c0\'cc nil\'c0\'cf\'b6\'a7\'b8\'b8 \'b4\'d0\'b3\'d7\'c0\'d3\'c0\'bb \'bf\'e4\'c3\'bb\'c7\'d1\'b4\'d9.
+\f6 \
+
+\f2 \
 Leaving the chat room\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
 
