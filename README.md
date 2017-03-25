@@ -1,9 +1,13 @@
 170323
 
-# socket.IO 번역
+
+#socket.IO 발번역
+(원본 - [http://www.appcoda.com/socket-io-chat-app/](http://www.appcoda.com/socket-io-chat-app/))
+
 <br>
 Preface
 ---
+
 iOS앱은 이미 수백만 개가 존재하며 댑분 서버와 통신하여 데이터를 교환한다. 대다수의 경우, 서버는 앱이 통신에 사용할 수있는 RESTful API를 구현하고 제공한다. 앱이 서버에 데이터를 보내거나 서버에서 데이터를 가져와야하는 경우 적절한 요청을하고 잠시 후 데이터가 반환된다. 앱 런타임 기간 동안 여러 번 발생한다.
 
 위 내용은 대부분 사용 사례를 다루지만 전부는 아니다. 예를 들어 실시간으로 업데이트 해야 하는 일종의 뉴스 피드가 앱에 표시되어야 한다면 어떻게 해야할까? 혹은 사용자간 실시간 대화가 앱 기능으로 지원되어야 한다면 어떻게 될까? 해결책은 앱이 새로운 데이터를 서버에 자주 요청하도록 하는 것이므로 가능한한 빨리 새로운 기능을 추가해야 한다. 그러나 이는 두 가지 기본적인 이유 때문에 최선의 방법은 아니다. 첫째, 끝없이 반복되는 요청을 수행하면 말할 것도 없이 불필요한 자원 낭비가 발생하고, 이는 모바일 장치에 관해서도 중요하다. 둘째, 요청간 짧은 간격이 설정 되더라도 곧 가져올 데이터가 실제로 가져올 시간을 보장하지는 않는다.
@@ -55,7 +59,7 @@ func connectToServerWithNickname(nickname: String, completionHandler: (userList:
 
 닉네임을 서버에 보내는 것은 다음의 한줄이면 충분하다.
 
-```
+```swift
 func connectToServerWithNickname(nickname: String, completionHandler: (userList: [[String: AnyObject]]!) -> Void) {
     socket.emit("connectUser", nickname)
 }
@@ -207,4 +211,4 @@ Summary
 
 Socket.IO는 모든 종류의 작업에 적합한 슈퍼무기로 구성되어 있는 것이 아니고 서버와 통신하는 전통적인 방법을 대체할 수는 없다. 그러나 특정 사례에 대해서는 훌륭한 도구라는 것을 알았고, 실시간 솔루션이 필요할때는 최상의 옵션이라고 생각했다. 어쨌든, 당신이 읽은 것이 유용했고 새로운 무언가를 배웠길 바란다. 더욱이, 내가 이 글을 쓰는데 쓴 시간만큼 이 글을 읽는 것을 즐겼기를 바란다.
 
-참고문헌은 https://github.com/appcoda/SocketIOChat여기서 전부 확인할 수 있다.
+참고문헌은 [https://github.com/appcoda/SocketIOChat](https://github.com/appcoda/SocketIOChat)여기서 전부 확인할 수 있다.
