@@ -5,6 +5,7 @@
 
 ## Preface
 
+
 iOS앱은 이미 수백만 개가 존재하며 댑분 서버와 통신하여 데이터를 교환한다. 대다수의 경우, 서버는 앱이 통신에 사용할 수있는 RESTful API를 구현하고 제공한다. 앱이 서버에 데이터를 보내거나 서버에서 데이터를 가져와야하는 경우 적절한 요청을하고 잠시 후 데이터가 반환된다. 앱 런타임 기간 동안 여러 번 발생한다.
 
 위 내용은 대부분 사용 사례를 다루지만 전부는 아니다. 예를 들어 실시간으로 업데이트 해야 하는 일종의 뉴스 피드가 앱에 표시되어야 한다면 어떻게 해야할까? 혹은 사용자간 실시간 대화가 앱 기능으로 지원되어야 한다면 어떻게 될까? 해결책은 앱이 새로운 데이터를 서버에 자주 요청하도록 하는 것이므로 가능한한 빨리 새로운 기능을 추가해야 한다. 그러나 이는 두 가지 기본적인 이유 때문에 최선의 방법은 아니다. 첫째, 끝없이 반복되는 요청을 수행하면 말할 것도 없이 불필요한 자원 낭비가 발생하고, 이는 모바일 장치에 관해서도 중요하다. 둘째, 요청간 짧은 간격이 설정 되더라도 곧 가져올 데이터가 실제로 가져올 시간을 보장하지는 않는다.
@@ -89,18 +90,111 @@ socket.on("SomeMessage") { ( dataArray, ack) -> Void in
 
 ## Displaying users
 
+
 우리가 유저를 채팅방에 연결하는 메카니즘을 구현했고, 유저 리스트를 받아왔기 때문에 이제 이를 사용할 차례다. 먼저 UsersViewController.swift 파일을 열고, 새로운 custom method를 추가하자. 이 메소드는 앱이 켜졌을 때 유저가 nickname을 타입해넣을 수 있는 textfield와 함께 alert constroller를 보여주는 메소드이다.
 이것이 해야 할 구현이다. 복붙하도록 하자.
 
+```swift
+func askForNickname() {
+    let alertController = UIAlertController(title: "SocketChat", message: "Please enter a nickname:", preferredStyle: UIAlertControllerStyle.Alert)
+
+    alertController.addTextFieldWithConfigurationHandler(nil)
+
+    let OKAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default) { (action) -> Void in
+
+    }
+
+    alertController.addAction(OKAction)
+    presentViewController(alertController, animated: true, completion: nil)
+}
+```
+
 OKAction body 부분이 우리가 뭔가 로직을 추가할 곳이다. 먼저 alert controller의 textfield가 제대로된 값을 포함하고 있는지 아닌지 체크할 것이다. 만약 아니라면 우리는 recursion을 통해 같은 메소드를 한 번 더 call할 것이고 똑같은 alert controller가 다시 뜰 것이다.
+
 
 그러나 textfield가 값을 가지고 있다면, 우리는 먼저 nickname이라고 한 property에 먼저 저장할 것이다. 그리고 이전에 만들어둔 `connectToServerWithNickname(_:completionHandler:)` 메소드를 call할 것이다.
 
 사용자 목록을 얻어서 비어 있지 않다는 걸 확인하면 UsersViewController class의 users property에 할당하고 tableview를 업데이트하고 볼 수 있게 만들자.
+
+```
+func askForNickname() {
+    ...
+ 
+    let OKAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default) { (action) -> Void in
+        let textfield = alertController.textFields![0]
+        if textfield.text?.characters.count == 0 {
+            self.askForNickname()
+        }
+        else {
+ 
+        }
+    }
+ 
+    ...
+}
+```
+
+그러나 textfield가 값을 가지고 있다면, 우리는 먼저 nickname이라고 한 property에 먼저 저장할 것이다. 그리고 이전에 만들어둔 connectToServerWithNickname(_:completionHandler:) 메소드를 call할 것이다.
+
+```
+func askForNickname() {
+    ...
+ 
+    let OKAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default) { (action) -> Void in
+        let textfield = alertController.textFields![0]
+        if textfield.text?.characters.count == 0 {
+            self.askForNickname()
+        }
+        else {
+            self.nickname = textfield.text
+ 
+            SocketIOManager.sharedInstance.connectToServerWithNickname(self.nickname, completionHandler: { (userList) -> Void in
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    if userList != nil {
+                        self.users = userList
+                        self.tblUserList.reloadData()
+                        self.tblUserList.hidden = false
+                    }
+                })
+            })
+        }
+    }
+ 
+    ...
+}
+```
+
+사용자 목록을 얻어서 비어 있지 않다는 걸 확인하면 UsersViewController class의 users property에 할당하고 tableview를 업데이트하고 볼 수 있게 만들자. 
+
 위의 코드 조각으로 우리는 각 부분이 나머지 부분과 어떻게 조화롭게 상호작용 하는지 볼 것이다: 데이터를 받아들이고 보내는 이 클래스가 매개 클래스인 SocketIOManager를 사용한다. 그리고 결국 Socket.IO 라이브러리를 직접적으로 다룬다.
 어디선가는 위 메소드를 콜하도록 만들어야 한다는걸 잊지말자. 내가 보기에는, 가장 적절한 위치는 `viewDidAppear(:_)` 메소드이다. UI가 적절하게 초기화 되었는지 확인할 수 있기 때문이다. 이렇게 만들자:
 
-각 속성이 nil일때만 닉네임을 요청한다.
+```
+override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+ 
+    if nickname == nil {
+        askForNickname()
+    }
+}
+```
+
+해당 속성이 nil일때만 닉네임을 요청한다. 그렇지 않으면 무의미하고 논리적으로 잘못된 것이다.
+
+사용자 정보를 테이블 뷰에 표시할 차례다. Starter Project에서는 거의 다 구현된 tableview관련 메소드를 찾을 수 있지만, 셀에 적절한 데이터를 표시하는 로직은 아직 빠져 있다. 아래처럼 하자.
+
+```swift
+func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCellWithIdentifier("idCellUser", forIndexPath: indexPath) as! UserCell
+
+    cell.textLabel?.text = users[indexPath.row]["nickname"] as? String
+    cell.detailTextLabel?.text = (users[indexPath.row]["isConnected"] as! Bool) ? "Online" : "Offline"
+    cell.detailTextLabel?.textColor = (users[indexPath.row]["isConnected"] as! Bool) ? UIColor.greenColor() : UIColor.redColor()
+
+
+    return cell
+}
+```
 
 ## Leaving the chat room
 
@@ -117,21 +211,41 @@ nickname property가 nil일 때만 다시 묻는다는 점을 기억하자. 그 
 
 서버는 "exitUser"라는 메시지를 받고나면 명시된 유저를 삭제해야 한다는 것을 즉시 이해한다. 그게 정확히 서버가 하는 일이다.
 
-UsersViewController.swift파일로 돌아가서, 바로 `exitUser(:_)`IBAction  메소드를 보자. 여기가 위의 코드가 불릴 곳이다(caller). 그 액션이 로그아웃 프로세스이기 때문에 그 메시지가 서버로 보내지고 나면 유저의 리스트에서 유저의 닉네임을 지우고 그의 닉네임을 다시 입력하라고 요청해야 한다. 다음처럼 하자
+
+UsersViewController.swift파일로 돌아가서, 바로 exitChat(:_) IBAction  메소드를 보자(역자 주 : exitUser(:\_)라고 해놓았는데 실수인 것 같다). 여기가 위의 코드가 불릴 곳이다(caller). 그 액션이 로그아웃 프로세스이기 때문에 그 메시지가 서버로 보내지고 나면 유저의 리스트에서 유저의 닉네임을 지우고 그의 닉네임을 다시 입력하라고 요청해야 한다. 다음처럼 하자
 
 앱을 다시 테스트함으로써 한 디바이스에서 Exit 버튼을 눌렀을 때 그 유저가 즉시 다른 디바이스의 리스트에서 사라진다는 것을 볼 수 있다. 테스트 하기 전엔 각 디바이스에 우리가 작업한 모든 부분을 다시 인스톨해서 진행해야 된다는 것을 기억하자. 이전에 추가된 사용자들이 전부 제거되도록 서버를 재시작 (Ctrl-C 해서 정지, `node index.js`로 시작) 하는 것도 좋은 방법이다.
 
 ## Chatting
 
-사용자 간의 실제 채팅을 구현할 때다. 예상 하다시피, 서버에 메시지를 보내고 새로운 것을 받아오기 위해 새로운 메소드를 SOcketIOManager 클래스에 만들 것이다. 당연히 두 동작을 위해서는 새로운 메시지 리터럴을 사용할 것이고, 이를 서버도 어떻게 답해야 할지 안다. 그리고, 우리는 메시지를 보내고 앱에 띄우는 데 부족한 코드를 모두 넣을 것이다.
+사용자 간의 실제 채팅을 구현할 때다. 예상 하다시피, 서버에 메시지를 보내고 새로운 것을 받아오기 위해 새로운 메소드를 SocketIOManager 클래스에 만들 것이다. 당연히 두 동작을 위해서는 새로운 메시지 리터럴을 사용할 것이고, 이를 서버도 어떻게 답해야 할지 안다. 그리고, 우리는 메시지를 보내고 앱에 띄우는 데 부족한 코드를 모두 넣을 것이다.
 
 급한게 먼저니까, SOcketIOManager 클래스를 열자. 새로운 메소드를 정의하고 그 body는 한줄만으로 채울 것이다. 그 한줄은 채팅 메시지와 유저의 닉네임을 서버로 보내는 emit 명령이다.
+
+```swift
+func sendMessage(message: String, withNickname nickname: String) {
+    socket.emit("chatMessage", nickname, message)
+}
+```
 
 서버가 “chatMessage”라는 메시지를 받으면, 이는 결국 연결된 모든 유저에게 표시된다. 이 모든 통신 과정은 한순간에 이루어진다. 그래서 새로운 어떤 메시지든 모든 유저에게 실시간으로 보여질 것이다. 그리고 이것이 우리가 SocketIO 라이브러리를 이용해 아카이브하길 원하는 이유이다.
 
 실제 메시지 외에, 서버도 유저에게 다른 쓸모 있는 정보들을 보낸다: 메시지 발신자의 닉네임과 메시지의 일시. 그것을 염두에 두고 새롭게 들어오는 채팅 메시지를 listening하는 새로운 메소드를 구현하자.
 
-socket.on(…) 클로져의 dataArray 배열은 세 개의 원소를 가지고 있다: 보낸이의 닉네임, 실제 메시지와 메시지의 시간이다. 이 모두는 string 값으로 보내질 것이다. 그리고 딕셔너리에 추가될 것이다. 이 딕셔너리는 completion handler를 통해 그 메소드의 콜러에게 리턴된다. 지금부터 계속해서 새로운 채팅 메시지가 올 때마다 on 메소드를 자동으로 콜하게 됨을 다시 한 번 기억하자.
+```swift
+func getChatMessage(completionHandler: (messageInfo: [String: AnyObject]) -> Void) {
+    socket.on("newChatMessage") { (dataArray, socketAck) -> Void in
+        var messageDictionary = [String: AnyObject]()
+        messageDictionary["nickname"] = dataArray[0] as! String
+        messageDictionary["message"] = dataArray[1] as! String
+        messageDictionary["date"] = dataArray[2] as! String
+ 
+        completionHandler(messageInfo: messageDictionary)
+    }
+}
+```
+
+```socket.on(…)``` 클로져의 ```dataArray``` 배열은 세 개의 원소를 가지고 있다: 보낸이의 닉네임, 실제 메시지와 메시지의 시간이다. 이 모두는 string 값으로 보내질 것이다. 그리고 딕셔너리에 추가될 것이다. 이 딕셔너리는 completion handler를 통해 그 메소드의 콜러에게 리턴된다. 지금부터 계속해서 새로운 채팅 메시지가 올 때마다 on 메소드를 자동으로 콜하게 됨을 다시 한 번 기억하자.
 
 채팅 메시지를 보내고 받는 메카니즘이 이제 존재한다. 그러니 이걸 app flow에 전부 합치는 작업을 하자. 먼저 이 튜토리얼에서는 ChatViewController.swift 파일을 열어 `sendMessage(:_)` IBAction method를 위치시키자. 유저의 닉네임은 세그웨이를 따라 UsersViewController에서 ChatViewController로 전달됨을 유념하자. 그래서 우리가 여기서도 유저의 닉네임을 이용할 수 있다.
 
@@ -139,9 +253,60 @@ IBAction 메소드에서 보낼 텍스트가 있다는걸 확인할 것이다. �
 
 이제, 우리는 새로운 메시지를 받기 위한 로직을 구현해야 한다. `viewDidAppear(_:)` 메소드에 다음을 추가하자.
 
+```swift
+@IBAction func sendMessage(sender: AnyObject) {
+    if tvMessageEditor.text.characters.count > 0 {
+        SocketIOManager.sharedInstance.sendMessage(tvMessageEditor.text!, withNickname: nickname)
+        tvMessageEditor.text = ""
+        tvMessageEditor.resignFirstResponder()
+    }
+}
+```
+
+이제, 우리는 새로운 메시지를 받기 위한 로직을 구현해야 한다. ```viewDidAppear(_:)``` 메소드에 다음을 추가하자.
+
+```swift
+override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+ 
+    SocketIOManager.sharedInstance.getChatMessage { (messageInfo) -> Void in
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            self.chatMessages.append(messageInfo)
+            self.tblChat.reloadData()
+            //                self.scrollToBottom()
+        })
+    }
+}
+```
+
 위와 같이, 자세한 새 채팅 메시지는 chatMessages 배열에 append될 것이다. 그리고 tableview는 새 메시지가 chat feed에 표시되게끔 리로드될 것이다.
 
 tableview에 대해 말하자면, 셀 내용이 적절하게 표시되도록 만들자. 카톡처럼 내 메시지가 우리의 다른 유저에게 보내질 때 셀 내용은 오른쪽에 align 될 것이다. 반대로 다른 유저가 메시지를 보내면 셀 내용이 왼쪽으로 align될 것이다.
+
+```swift
+func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCellWithIdentifier("idCellChat", forIndexPath: indexPath) as! ChatCell
+ 
+    let currentChatMessage = chatMessages[indexPath.row]
+    let senderNickname = currentChatMessage["nickname"] as! String
+    let message = currentChatMessage["message"] as! String
+    let messageDate = currentChatMessage["date"] as! String
+ 
+    if senderNickname == nickname {
+        cell.lblChatMessage.textAlignment = NSTextAlignment.Right
+        cell.lblMessageDetails.textAlignment = NSTextAlignment.Right
+ 
+        cell.lblChatMessage.textColor = lblNewsBanner.backgroundColor
+    }
+ 
+    cell.lblChatMessage.text = message
+    cell.lblMessageDetails.text = "by \(senderNickname.uppercaseString) @ \(messageDate)"
+ 
+    cell.lblChatMessage.textColor = UIColor.darkGrayColor()
+ 
+    return cell
+}
+```
 
 축하한다! 챗 앱이 이제 거의 다 준비가 됐다. 그러나 더 흥미로운 것들이 많이 남아 있으니까 우리는 여기서 멈추지 않을 것이다.
 
@@ -157,19 +322,65 @@ SocketIOManager.swift 파일으로 돌아가서, 두 개의 새로운 메시지(
 
 여기 당신이 SocketIOManager.swift에 만들어야 하는 새로운 메소드가 있다. 우리가 두 메시지를 listen할 메소드이다:
 
+```swift
+private func listenForOtherMessages() {
+    socket.on("userConnectUpdate") { (dataArray, socketAck) -> Void in
+        NSNotificationCenter.defaultCenter().postNotificationName("userWasConnectedNotification", object: dataArray[0] as! [String: AnyObject])
+    }
+ 
+    socket.on("userExitUpdate") { (dataArray, socketAck) -> Void in
+        NSNotificationCenter.defaultCenter().postNotificationName("userWasDisconnectedNotification", object: dataArray[0] as! String)
+    }
+}
+```
+
 첫 번째 케이스에서 서버는 모든 유저의 정보(ID, 닉네임, 연결상태)를 가지고 있는 딕셔너리를 리턴한다. 두 번째 케이스에서 서버는 채팅방을 나간 사람의 닉네임만 리턴한다. 그러나 각 경우에 우리는 알림의 object property를 이용하는 각각의 정보를 보내준다.
 
 위 메소드는 어디선가는 불릴 것이다. 그렇지 않으면 이 앱이 두 메시지를 받아들일 수 없다. 위 메소드를 유저가 서버에 연결되자마자 콜할 최적의 장소는 좀전에 우리가 만들었던 `connectToServerwithNickname(_:completionHandler:)` 메소드이다. 따라서 이렇게 바꾸자.
 
-이제 ChatViewController.swift를 열어서 `viewDidLoad(_:)` 메소드를 보자. 우리가 여기서 해야할 것은 위의 두 noti를 관찰하는 것이다.
+```swift
+func connectToServerWithNickname(nickname: String, completionHandler: (userList: [[String: AnyObject]]!) -> Void) {
+    ...
+ 
+    listenForOtherMessages()
+}
+```
+
+이제 ChatViewController.swift를 열어서 viewDidLoad(_:) 메소드를 보자. 우리가 여기서 해야할 것은 위의 두 noti를 관찰하는 것이다.
+
+```swift
+override func viewDidLoad() {
+    ...
+
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleConnectedUserUpdateNotification:", name: "userWasConnectedNotification", object: nil)
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleDisconnectedUserUpdateNotification:", name: "userWasDisconnectedNotification", object: nil)
+}
+```
 
 위 코드 조각은 알림들을 선택하기 위해 우리가 명시한 두 새로운 메소드이다. 이는 다음 작업으로 각 메소드들을 정의해야 함을 의미한다.
 
 첫 번째 것을 위해, 연결된 유저의 닉네임을 알림의 object 프로퍼티로부터 추출할 것이다. 그리고 우리는 라벨의 텍스트를 명시할 것이고 트리거를 만들 것이다.
 
+```swift
+func handleConnectedUserUpdateNotification(notification: NSNotification) {
+    let connectedUserInfo = notification.object as! [String: AnyObject]
+    let connectedUserNickname = connectedUserInfo["nickname"] as? String
+    lblNewsBanner.text = "User \(connectedUserNickname!.uppercaseString) was just connected."
+    showBannerLabelAnimated()
+}
+```
+
 showBannerLabelAnimated 메소드 뿐만 아니라 lblNewsBanner IBOutlet 프라퍼티도 이미 프로젝트에 존재한다.
 
 비슷한 방법으로 우리는 연결이 끊긴 유저의 닉네임을 표시하는 아래의 메소드를 구현할 것이다.
+
+```swift
+func handleDisconnectedUserUpdateNotification(notification: NSNotification) {
+    let disconnectedUserNickname = notification.object as! String
+    lblNewsBanner.text = "User \(disconnectedUserNickname.uppercaseString) has left."
+    showBannerLabelAnimated()
+}
+```
 
 만약 당신이 앱을 다시 킨다면, chat view controller로 가서 다른 유저를 연결하거나 연결을 끊어보라; 적절한 메시지의 라벨이 몇 초 만에 나타났다가 화면 위로 사라질 것이다.
 
