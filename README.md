@@ -390,17 +390,93 @@ func handleDisconnectedUserUpdateNotification(notification: NSNotification) {
 
 이전까지 많이 해온 같은 로직을 따라서 SocketIOManager.swift 파일을 열고 메시지가 타입되고 있으면 새로운 메시지를 서버에 emit하는 새로운 메소드를 추가하자.
 
+
+```swift
+func sendStartTypingMessage(nickname: String) {
+    socket.emit("startType", nickname)
+}
+```
+
 우리는 또한 유저가 타이핑을 멈출때에도 비슷한 메시지를 보낼 것이다. 예를 들어 swipe down 제스쳐가 만들어지고 키보드가 dismissed된다면 그런 상황이 일어날 수 있다.
+
+```swift
+func sendStopTypingMessage(nickname: String) {
+    socket.emit("stopType", nickname)
+}
+```
 
 우리가 타이핑을 시작하거나 멈출 때마다 위의 것들 중 하나가 호출됨으로써 서버는 결과적으로 모든 타이핑을 하고 있는 유저들을 알려줄 수 있다. 그러므로 서버는 그 메시지를 보내줄 것이고 따라서 우리는 그것을 듣고 있어야 한다. 아래 코드가 listenForOtherMessages() 메소드에 추가될 것임을 주의하자.
 
+```swift
+private func listenForOtherMessages() {
+    ...
+ 
+ 
+    socket.on("userTypingUpdate") { (dataArray, socketAck) -> Void in
+        NSNotificationCenter.defaultCenter().postNotificationName("userTypingNotification", object: dataArray[0] as? [String: AnyObject])
+    }
+}
+```
+
 우리는 이제 마지막으로 ChatViewController.swift 파일로 전환할 준비가 되었다. `viewDidLoad(_:)`메소드에서 위 알림을 계속 관찰할 것이다.
+
+```swift
+override func viewDidLoad() {
+    ...
+ 
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "handleUserTypingNotification:", name: "userTypingNotification", object: nil)
+}
+```
 
 `handleUserTypingNotification(_:)` 메소드의 구현할 때 타이핑중인 유저가 나라면 라벨을 보여주지 않도록 하자. 게다가 나머지는 쉽다. 서버에서 반환된 딕셔너리에 포함된 모든 사용자의 닉네임을 포함하는 문자열을 작성하고 출력 메시지를 올바르게 준비한다.
 
+```swift
+func handleUserTypingNotification(notification: NSNotification) {
+    if let typingUsersDictionary = notification.object as? [String: AnyObject] {
+        var names = ""
+        var totalTypingUsers = 0
+        for (typingUser, _) in typingUsersDictionary {
+            if typingUser != nickname {
+                names = (names == "") ? typingUser : "\(names), \(typingUser)"
+                totalTypingUsers += 1
+            }
+        }
+ 
+        if totalTypingUsers > 0 {
+            let verb = (totalTypingUsers == 1) ? "is" : "are"
+ 
+            lblOtherUserActivityStatus.text = "\(names) \(verb) now typing a message..."
+            lblOtherUserActivityStatus.hidden = false
+        }
+        else {
+            lblOtherUserActivityStatus.hidden = true
+        }
+    }
+ 
+ }
+```
+
 잘했다. 하지만 아직 유저가 타이핑 하고 있는지 아닌지를 서버에 알리지 않았다. 첫 번째 경우에는 textview의 `textViewShouldBeginEditing(_:)`로 가서 delegate 메소드로 이동해서 다음처럼 업데이트 하자.
 
+```swift
+func textViewShouldBeginEditing(textView: UITextView) -> Bool {
+    SocketIOManager.sharedInstance.sendStartTypingMessage(nickname)
+ 
+    return true
+}
+```
+
 유저가 키보드를 없애서 타이핑을 멈췄다는 것을 나타내려면, dismissKeyboard()라는 메소드를 찾아내서 라인을 한 줄 추가하자.
+
+```swift
+func dismissKeyboard() {
+    if tvMessageEditor.isFirstResponder() {
+        tvMessageEditor.resignFirstResponder()
+ 
+        SocketIOManager.sharedInstance.sendStopTypingMessage(nickname)
+    }
+}
+```
 
 바로 그거다! 위는 우리의 마지막 산고였다. 남은 일은 앱을 한 번 더 테스트하고 다른 유저가 타이핑할 때 알림을 받는 것이다.
 
