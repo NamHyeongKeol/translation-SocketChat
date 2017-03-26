@@ -28,7 +28,7 @@ iOS 용 Socket.IO 라이브러리 (클라이언트)를 사용하는 방법과 �
 
 다음 부분에서 모든 것을 자세하게 볼 수 있지만 여기에 우리의 목표에 대한 간략한 설명을 드리겠다. 첫째, 앱은 두 개의 ViewController로 분리된다. 첫 번째 경우 사용자는 닉네임만 제공하여 앱에 '로그인'할 수 있다(확실한 이유때문에 더 복잡한 로그인 메커니즘을 피할 것이다). 이렇게 되면 기존의 모든 사용자가 테이블 뷰에 나열되고 이름 옆에 연결 상태 표시 (온라인 또는 오프라인)가 표시된다. tableview 바로 아래에 채팅을 수행하기 위한 다음 View Controller로 이동하는 "Join Chat"버튼이 있다.
 
-![asdf](http://www.appcoda.com/wp-content/uploads/2016/02/t49_1_sample_vc1_nickname.png)
+![](http://www.appcoda.com/wp-content/uploads/2016/02/t49_1_sample_vc1_nickname.png)
 ![](http://www.appcoda.com/wp-content/uploads/2016/02/t49_2_sample_vc1_userlist.png)
 
 
