@@ -4,7 +4,10 @@
 [![reference](https://img.shields.io/badge/reference-Swift_Tutorial:_Building_an_iOS_Chat_App_Using_Socket.IO-blue.svg?style=flat-square)](http://www.appcoda.com/socket-io-chat-app/)
 
 > 저자
+> 
 >+ [Gabriel Theodoropoulos](https://github.com/gabrieltheodoropoulos)
+>
+>
 > 준비물 
 > 
 >+ 맥북 혹은 아이맥 (필수)
