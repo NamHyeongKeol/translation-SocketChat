@@ -1,7 +1,7 @@
 # Swift로 Socket.IO를 이용한 iOS 채팅 앱 만들기
 
 ![Last Updated](https://img.shields.io/badge/Last_Updated-2017/03/26-green.svg?style=flat-square)
-[![reference](https://img.shields.io/badge/reference-Swift_Tutorial:_Building_an_iOS_Chat_App_Using_Socket.IO-blue.svg?style=flat-square)](http://www.appcoda.com/socket-io-chat-app/)
+[![the Source](https://img.shields.io/badge/the_Source-Swift_Tutorial:_Building_an_iOS_Chat_App_Using_Socket.IO_from_appcoda-blue.svg?style=flat-square)](http://www.appcoda.com/socket-io-chat-app/)
 
 > 저자
 > 
